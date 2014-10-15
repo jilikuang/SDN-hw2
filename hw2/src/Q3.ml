@@ -2,8 +2,7 @@ open NetKAT.Std
 
 let pol_port1 : policy =
     <:netkat<
-        if ((tcpSrcPort = 22) && ((ethDst = 3) || ethDst = 4))
-        then drop
+        if tcpSrcPort = 22 && (ethDst = 3 || ethDst = 4) then drop
         else port := 2 + port := 3 + port := 4
     >>
 
