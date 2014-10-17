@@ -1,3 +1,4 @@
+(* Refer to ~/tutorials/live/NetKATLearning.ml *)
 open Core.Std
 open Async.Std
 open Async_NetKAT
@@ -46,6 +47,12 @@ let policy () =
   let r = route_pol () in
   <:netkat< $l + $r >>
 
+let count_tx = ref 0
+
+let count_rx = ref 0
+
+let inc_c (c : int ref) = c.contents <- c.contents + 1
+
 let handler t w () e = match e with
   | PacketIn(_, switch_id, port_id, payload, _) ->
     let packet = Packet.parse (SDN_Types.payload_bytes payload) in
@@ -61,7 +68,14 @@ let handler t w () e = match e with
 
 let firewall =
   create_static
-    <:netkat< if ethType = 0x800 && ipProto = 0x01 then drop else id>>
+    <:netkat<
+      if ethSrc = 1 && (ethDst = 2 || ethDst = 3) &&
+         (tcpSrcPort = 443 || tcpDstPort = 443) then drop
+      else if ethSrc = 2 && (ethDst = 1 || ethDst = 3) &&
+              (tcpSrcPort = 443 || tcpDstPort = 443) then drop
+      else if ethSrc = 3 && (ethDst = 1 || ethDst = 2) &&
+              (tcpSrcPort = 443 || tcpDstPort = 443) then drop
+      else id>>
 
 let learning = create ~pipes:(PipeSet.singleton "learn") (policy ()) handler
 
