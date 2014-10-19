@@ -70,10 +70,13 @@ let firewall =
   create_static
     <:netkat<
       if ethSrc = 1 && (ethDst = 2 || ethDst = 3) &&
+         ethType = 0x0800 && ipProto = 0x06 &&
          (tcpSrcPort = 443 || tcpDstPort = 443) then drop
       else if ethSrc = 2 && (ethDst = 1 || ethDst = 3) &&
+              ethType = 0x0800 && ipProto = 0x06 &&
               (tcpSrcPort = 443 || tcpDstPort = 443) then drop
       else if ethSrc = 3 && (ethDst = 1 || ethDst = 2) &&
+              ethType = 0x0800 && ipProto = 0x06 &&
               (tcpSrcPort = 443 || tcpDstPort = 443) then drop
       else id>>
 
